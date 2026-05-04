@@ -524,9 +524,9 @@
             }
 
             function isAnswerCorrect(userAns, correct) {
-                let u = userAns.replace(/\s/g, '');
-                let c = correct.replace(/\s/g, '');
-                if (u === c) return true;
+                  let u = userAns.replace(/\s/g, '');
+    let c = correct.replace(/\s/g, '');
+    if (u === c) return true;
                 if (c.includes('...')) return false;
                 if (c.includes(':')) return false;
                 let m = c.match(/^(\d+(?:\.\d+)?)\D.*$/);
