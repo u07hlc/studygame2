@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🦄 魔法听写 · 分组精灵</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', cursive, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            background: url('bg3.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: #5e2a4a;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 235, 245, 0.15);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .corner-img {
+            position: fixed;
+            width: 160px;
+            height: auto;
+            pointer-events: none;
+            z-index: 30;
+            filter: drop-shadow(0 15px 20px rgba(245, 145, 200, 0.6));
+            animation: floatSoft 7s infinite ease-in-out;
+        }
+
+        #corner1 { top: 15px; left: 15px; width: 170px; }
+        #corner2 { top: 15px; right: 15px; width: 160px; animation-delay: 1.5s; }
+        #corner3 { bottom: 15px; left: 15px; width: 165px; animation-delay: 2.2s; }
+        #corner4 { bottom: 15px; right: 15px; width: 180px; animation-delay: 0.8s; }
+
+        @keyframes floatSoft {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-18px) rotate(4deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        .glass-card {
+            max-width: 950px;
+            margin: 30px auto;
+            background: rgba(255, 245, 250, 0.5);
+            backdrop-filter: blur(2px);
+            border-radius: 60px 60px 40px 40px;
+            box-shadow: 0 20px 40px rgba(235, 120, 180, 0.3), 0 0 0 3px #ffe7f6 inset, 0 0 0 5px #ffd9f0;
+            padding: 30px 30px 40px;
+            border: 2px solid white;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.8rem;
+            color: #6b2b4f;
+            text-shadow: 2px 2px 0 #ffd0e8;
+            letter-spacing: 1px;
+        }
+
+        h1 span {
+            font-size: 3rem;
+            display: inline-block;
+            filter: drop-shadow(0 4px 2px #fbb0d0);
+            color: #7a3a5a;
+        }
+
+        .top-buttons {
+            position: absolute;
+            top: 25px;
+            right: 190px;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .home-button, .settings-top-btn {
+            background: rgba(255, 200, 230, 0.7);
+            backdrop-filter: blur(2px);
+            border: 4px solid white;
+            border-radius: 60px;
+            padding: 10px 22px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4a1e35;
+            text-decoration: none;
+            box-shadow: 0 5px 0 #b35d86, 0 8px 15px rgba(255, 150, 200, 0.5);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.1s ease;
+            cursor: pointer;
+        }
+
+        .home-button:hover, .settings-top-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #b35d86, 0 12px 20px rgba(255, 150, 200, 0.6);
+        }
+        .home-button:active, .settings-top-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #b35d86;
+        }
+
+        .btn {
+            background: rgba(245, 173, 240, 0.7);
+            backdrop-filter: blur(2px);
+            border: none;
+            border-radius: 60px;
+            padding: 16px 32px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4a1e35;
+            text-shadow: 1px 1px 0 #ffe2f0;
+            box-shadow: 0 10px 0 #b35d86, 0 4px 20px #ffb3d0;
+            cursor: pointer;
+            transition: 0.07s ease;
+            border: 3px solid #ffe3f1;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 4px 0 #b35d86;
+        }
+
+        .btn.small, .btn-small {
+            font-size: 1.1rem;
+            padding: 8px 16px;
+            box-shadow: 0 5px 0 #b35d86;
+            background: rgba(245, 173, 240, 0.7);
+            backdrop-filter: blur(2px);
+            border: 3px solid #ffe3f1;
+            color: #4a1e35;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .settings-panel {
+            background: rgba(255, 240, 250, 0.5);
+            backdrop-filter: blur(2px);
+            border-radius: 50px;
+            padding: 20px 25px;
+            margin: 15px 0 25px;
+            border: 3px dotted #ffa5cf;
+            box-shadow: 0 10px 0 #fbb0d0;
+        }
+
+        .setting-row, .setting-row-special {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 10px 0;
+            gap: 12px;
+        }
+        .setting-row label, .setting-row-special label {
+            flex: 0 0 150px;
+            font-size: 1.3rem;
+            color: #4a1e35;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .setting-row input, .setting-row select, .setting-row-special input {
+            flex: 0 0 auto;
+            width: 85px;
+            padding: 8px 12px;
+            font-size: 1.2rem;
+            border: 3px solid #d96e9f;
+            border-radius: 60px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #3d1a2e;
+            outline: none;
+            box-shadow: 0 4px 0 #b35d86;
+            font-weight: 500;
+            text-align: center;
+        }
+        .setting-row select { width: 192px; text-align: left; padding-left: 15px; }
+        .button-group-inline { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .add-words-btn { background: rgba(140, 210, 255, 0.85); box-shadow: 0 4px 0 #3a6d8c; color: #1a3a4a; }
+        .max-check-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 220, 240, 0.6);
+            padding: 5px 12px;
+            border-radius: 60px;
+            margin-left: 5px;
+        }
+        .max-check-wrapper label { flex: none; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .max-check-wrapper input { width: 18px; height: 18px; margin: 0; cursor: pointer; box-shadow: none; }
+        .file-note {
+            background: rgba(255, 224, 240, 0.6);
+            backdrop-filter: blur(2px);
+            border-radius: 40px;
+            padding: 10px 18px;
+            font-size: 1.1rem;
+            border: 2px dashed #f479b6;
+            margin: 15px 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            color: #4a1e35;
+            font-weight: 500;
+        }
+        .group-selector {
+            background: rgba(255, 248, 225, 0.6);
+            border-radius: 45px;
+            padding: 15px 18px;
+            margin: 15px 0 10px;
+            border: 2px solid #ffbf8f;
+        }
+        .group-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #6b2b4f;
+        }
+        .group-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .group-chip {
+            background: rgba(255, 215, 235, 0.7);
+            border-radius: 50px;
+            padding: 8px 18px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: 3px solid #ffb3d0;
+            color: #5e2a4a;
+            cursor: pointer;
+            transition: 0.1s;
+            backdrop-filter: blur(2px);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .group-chip.selected {
+            background: #ffb0cf;
+            border-color: #b35d86;
+            color: white;
+            text-shadow: 1px 1px 0 #b35d86;
+            box-shadow: 0 2px 8px #ff99c2;
+        }
+        .group-chip small {
+            font-size: 0.7rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 30px;
+            padding: 2px 6px;
+        }
+        .word-progress {
+            font-size: 1.8rem;
+            background: rgba(255, 218, 240, 0.6);
+            backdrop-filter: blur(2px);
+            border-radius: 50px;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            color: #4a1e35;
+            font-weight: bold;
+        }
+        #heartsDisplay { font-size: 1.8rem; letter-spacing: 2px; white-space: nowrap; }
+        .tts-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0 12px;
+            background: rgba(255, 232, 242, 0.6);
+            backdrop-filter: blur(2px);
+            border-radius: 50px;
+            padding: 12px 18px;
+            color: #4a1e35;
+        }
+        .sentence-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 5px 0 15px;
+            background: rgba(255, 242, 230, 0.7);
+            backdrop-filter: blur(2px);
+            border-radius: 50px;
+            padding: 10px 18px;
+            border: 2px solid #ffc8a2;
+        }
+        .voice-btn {
+            background: rgba(196, 162, 255, 0.7);
+            backdrop-filter: blur(2px);
+            border: 3px solid #eed6ff;
+            border-radius: 50px;
+            padding: 6px 12px;
+            font-size: 1rem;
+            color: #2e1a3a;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #6b4b8c;
+            cursor: pointer;
+            min-width: 65px;
+            text-align: center;
+        }
+        .sentence-btn {
+            background: rgba(255, 200, 140, 0.85);
+            border-color: #ffb26e;
+            box-shadow: 0 4px 0 #aa6f3c;
+            color: #4a2a1a;
+        }
+        .speed-slider span { color: #4a1e35; font-weight: bold; }
+        .spell-area { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0; align-items: center; }
+        .spell-input {
+            flex: 3; min-width: 250px; padding: 16px 20px; font-size: 1.6rem;
+            border: 4px solid #d96e9f; border-radius: 60px; background: rgba(255, 255, 255, 0.8);
+            color: #2d1322; font-weight: 500;
+        }
+        .answer-box {
+            background: rgba(248, 224, 255, 0.7); backdrop-filter: blur(2px); border-radius: 40px;
+            padding: 10px 18px; margin: 8px 0 5px; font-size: 1.5rem; text-align: center;
+            border: 4px solid #b35d86; color: #3d1a2e; font-weight: bold;
+        }
+        .action-row { display: flex; gap: 15px; justify-content: center; margin: 15px 0; flex-wrap: wrap; }
+        .hidden { display: none !important; }
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.2); backdrop-filter: blur(5px); z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: rgba(255, 245, 250, 0.95); backdrop-filter: blur(4px); border-radius: 60px;
+            padding: 30px; max-width: 750px; width: 90%; max-height: 85vh; overflow-y: auto;
+            border: 5px solid #ffbcd9; box-shadow: 0 20px 40px #fbb0d0; color: #4a1e35;
+        }
+        .stats-box {
+            background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(2px); border-radius: 40px;
+            padding: 25px; max-height: 500px; overflow-y: auto; font-size: 1.2rem;
+            border: 4px solid #b35d86; color: #2d1322;
+        }
+        .percentage-badge {
+            background: #f9c7e2; display: inline-block; padding: 8px 18px; border-radius: 60px;
+            margin-bottom: 20px; font-size: 1.5rem; font-weight: bold; color: #7a2b4f;
+            border: 3px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .footer-heart {
+            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
+            text-align: center; font-size: 0.9rem; color: #4a1e35;
+            background: rgba(255, 240, 250, 0.6); backdrop-filter: blur(2px); padding: 5px 18px;
+            border-radius: 50px; border: 2px solid #b35d86; z-index: 40; white-space: nowrap; font-weight: bold;
+        }
+        .word-chip { background: rgba(255,255,240,0.8); border-radius: 40px; padding: 5px 12px; margin: 4px; display: inline-block; border: 1px solid #ff99bb; }
+        .word-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; max-height: 400px; overflow-y: auto; }
+        .final-image-container { text-align: center; margin: 10px 0 15px; }
+        .final-image { max-width: 100%; height: auto; max-height: 150px; border-radius: 40px; filter: drop-shadow(0 10px 15px #ffb0d0); }
+        .file-upload-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+        /* ===== MOBILE RESPONSIVE ===== */
+        @media (max-width: 700px) {
+            body { padding: 10px; }
+            .glass-card {
+                padding: 20px 15px 30px;
+                border-radius: 40px;
+                margin: 20px auto;
+            }
+            h1 { font-size: 2rem; }
+            h1 span { font-size: 2rem; }
+            .top-buttons {
+                position: static;
+                flex-direction: row;
+                justify-content: center;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            .home-button, .settings-top-btn {
+                font-size: 1rem;
+                padding: 8px 16px;
+            }
+            .btn {
+                font-size: 1.4rem;
+                padding: 12px 20px;
+                gap: 6px;
+            }
+            .btn.small, .btn-small {
+                font-size: 1rem;
+                padding: 6px 12px;
+            }
+            .setting-row label, .setting-row-special label {
+                flex: 0 0 120px;
+                font-size: 1rem;
+            }
+            .setting-row input, .setting-row select, .setting-row-special input {
+                width: 70px;
+                font-size: 1rem;
+                padding: 6px 10px;
+            }
+            .setting-row select { width: 150px; }
+            .word-progress { font-size: 1.3rem; padding: 10px 15px; }
+            #heartsDisplay { font-size: 1.3rem; }
+            .spell-input {
+                font-size: 1.2rem;
+                padding: 10px 14px;
+                min-width: 180px;
+            }
+            .voice-btn { font-size: 0.9rem; min-width: 55px; }
+            .answer-box { font-size: 1.2rem; }
+            .footer-heart { font-size: 0.7rem; padding: 4px 10px; }
+            .group-chip { font-size: 0.85rem; padding: 6px 12px; }
+            .corner-img { width: 80px; }
+            #corner1 { width: 80px; top: 8px; left: 8px; }
+            #corner2 { width: 80px; top: 8px; right: 8px; }
+            #corner3 { width: 80px; bottom: 8px; left: 8px; }
+            #corner4 { width: 90px; bottom: 8px; right: 8px; }
+            .file-note { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <img src="unicorn.png" alt="🦄" id="corner1" class="corner-img" onerror="this.style.display='none'">
+    <img src="1.png" alt="🌸" id="corner2" class="corner-img" onerror="this.style.display='none'">
+    <img src="2.png" alt="✨" id="corner3" class="corner-img" onerror="this.style.display='none'">
+    <img src="3.png" alt="⭐" id="corner4" class="corner-img" onerror="this.style.display='none'">
+
+    <div class="top-buttons">
+        <a href="index.html" class="home-button">🏠 Home</a>
+        <div class="settings-top-btn" id="topSettingsBtn">⚙️ Settings</div>
+    </div>
+    <div class="footer-heart">❤️ Made with love, for my dearest 🐷🐷 ❤️</div>
+
+    <div class="glass-card" id="appContainer">
+        <h1><span>🦄</span> magical spelling <span>✨</span></h1>
+
+        <div id="settingsPanel">
+            <div class="settings-panel">
+                <div class="setting-row">
+                    <label><span>📄</span> word list</label>
+                    <div class="file-upload-row">
+                        <input type="file" id="fileUpload" accept=".txt,.xlsx,.csv, .xls">
+                        <button class="btn-small load-btn" id="loadFileBtn">📥 load & use</button>
+                        <button class="btn-small add-words-btn" id="addWordsBtn">➕ add words</button>
+                        <button class="btn-small update-default-btn" id="updateDefaultBtn">⭐ set as default</button>
+                    </div>
+                </div>
+                <div class="file-note" id="defaultNote">
+                    📚 current: <span id="currentBankLabel">master word bank</span> (<span id="loadedWordCount"></span> words)
+                    <button class="btn-small" id="showWordsBtn">🔍 show all words</button>
+                    <button class="btn-small" id="showSelectedGroupsWordsBtn">📋 show test words</button>
+                </div>
+
+                <div class="group-selector" id="groupSelectorPanel">
+                    <div class="group-title">🎯 選擇單詞組 (可多選) <span style="font-size:0.8rem;">✨ 點擊切換</span></div>
+                    <div id="groupButtonsContainer" class="group-buttons"></div>
+                    <div style="font-size:0.8rem; margin-top: 8px;">💡 提示：未選任何組則默認全選所有組</div>
+                </div>
+
+                <div class="setting-row-special">
+                    <label><span>🔢</span> words per session</label>
+                    <input type="number" id="wordCount" min="1" max="200" value="40">
+                    <div class="max-check-wrapper">
+                        <label><input type="checkbox" id="maxWordsCheckbox"> 🌟 max (all)</label>
+                    </div>
+                </div>
+                
+                <div class="setting-row">
+                    <label><span>🎲</span> selection mode</label>
+                    <select id="selectMode">
+                        <option value="random">✨ random ✨</option>
+                        <option value="sequential">📋 sequential</option>
+                    </select>
+                    <label style="flex: 0 0 auto; margin-left: 20px;"><span>❤️</span> max hearts</label>
+                    <input type="number" id="heartCount" min="1" max="20" value="10">
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <button class="btn" id="startBtn"><span>🦄</span> start dictation! <span>✨</span></button>
+            </div>
+        </div>
+
+        <div id="dictationArea" class="hidden">
+            <div class="word-progress"><span id="wordCounter">✨ word 1 / 40</span><span id="heartsDisplay">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</span></div>
+            <div class="tts-row">
+                <button class="voice-btn" id="voiceUkBtn">UK 1</button>
+                <button class="voice-btn" id="voiceUkMaleBtn">UK 2</button>
+                <button class="voice-btn" id="voiceUsBtn">US 1</button>
+                <div class="speed-slider" style="display: flex; align-items: center; gap: 6px; flex:1;">
+                    <span>🐢</span><input type="range" id="speedRange" min="0.5" max="2" step="0.1" value="0.7" style="flex:1;"><span id="speedValue">0.7x</span><span>🐇</span>
+                </div>
+            </div>
+            <div class="sentence-row">
+                <span>📖 例句朗讀：</span>
+                <button class="voice-btn sentence-btn" id="sentenceUkBtn">💬 sentence-UK</button>
+                <button class="voice-btn sentence-btn" id="SentenceUsBtn">💬 sentence-US</button>
+            </div>
+            <div class="spell-area">
+                <input type="text" id="spellInput" class="spell-input" placeholder="type here..." autocomplete="off">
+                <button class="btn-small" id="checkBtn">✅ check</button>
+                <button class="btn-small learn-btn" id="learnBtn">📘 Learn</button>
+                <button class="btn-small skip-learn-btn hidden" id="skipAfterLearnBtn">⏭️ Skip</button>
+            </div>
+            <div id="feedback" style="font-size:1.1rem; min-height: 2.2rem;">✨</div>
+            <div id="answerDisplay" class="answer-box hidden"></div>
+            <div class="action-row">
+                <button class="voice-btn hidden" id="showAnswerBtn">🔍 show answer</button>
+                <button class="voice-btn hidden" id="skipAfterAnswerBtn">⏩ skip</button>
+            </div>
+        </div>
+
+        <div id="finalPanel" class="hidden">
+            <div id="finalMessage"></div>
+            <div id="finalImageContainer" class="final-image-container"></div>
+            <div id="statsContainer" class="stats-box"></div>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 25px; flex-wrap: wrap;">
+                <button class="btn" id="exportSummaryBtn">📥 Export Summary</button>
+                <button class="btn" id="restartBtn"><span>🔄</span> practice again</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="wordModal" class="modal hidden" onclick="if(event.target===this) this.classList.add('hidden')">
+        <div class="modal-content"><h3>🌸 all loaded words 🌸</h3><div id="wordListContainer" class="word-grid"></div><button class="btn-small" id="closeModalBtn">close</button></div>
+    </div>
+    <div id="addWordsModal" class="modal hidden" onclick="if(event.target===this) this.classList.add('hidden')">
+        <div class="modal-content"><h3>📝 add new words</h3><p>One word per line:</p><textarea id="newWordsTextarea" rows="8" class="text-area-input" placeholder="butterfly&#10;dolphin&#10;rainbow"></textarea><div class="modal-buttons"><button class="btn-small" id="cancelAddWordsBtn">cancel</button><button class="btn-small add-words-btn" id="confirmAddWordsBtn">✨ add to library</button></div></div>
+    </div>
+
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script>
+        (function() {
+            // ========== 词库 + 例句映射 (动态) ==========
+            // 内置基础词库 (单词及对应例句)
+            const builtinWordsWithSentences = [
+                ["quick","Quick means fast; she finished the race in a quick time."],["hurt","Hurt means to feel pain; I hurt my arm when I fell."],["clear","Clear means easy to understand; the instructions were clear."],["finish","Finish means to complete; I will finish my homework soon."],["think","Think means to have an idea or opinion; I think it will rain."],["play","Play means to take part in an activity for fun; we play games."],["full","Full means containing as much as possible; my cup is full."],["dark","Dark means with little or no light; the room is dark."],["keep","Keep means to have or hold something; I keep my keys here."],["teach","Teach means to help someone learn; she teaches English."],["behind","Behind means at the back of something; the dog is behind the fence."],["often","Often means many times or frequently; I often read before bed."],["beside","Beside means next to; sit beside me."],["heavy","Heavy means having great weight; this box is heavy."],["early","Early means before the usual time; I arrived early."],["low","Low means not high or small in amount; the price is low."],["need","Need means to require something; I need water."],["below","Below means under or lower than; the temperature is below zero."],["across","Across means from one side to the other; walk across the street."],["finally","Finally means after a long time; finally, the rain stopped."],["gentle","Gentle means kind and soft; she gave a gentle hug."],["quickly","Quickly means at a fast speed; he ran quickly to catch the bus."],["silent","Silent means making no noise; the room was silent."],["towards","Towards means in the direction of; she walked towards the door."],["resting","Resting means relaxing or not working; the cat is resting."],["sleeping","Sleeping means being in a state of rest; I am sleeping."],["running","Running means moving quickly on foot; she is running."],["having","Having means possessing or experiencing; I am having fun."],["except","Except means not including; everyone came except Tom."],["change","Change means to make different; I need to change my shirt."],["famous","Famous means known by many people; she is a famous singer."],["leaving","Leaving means going away; the train is leaving."],["middle","Middle means the center point; I sit in the middle row."],["straight","Straight means without a bend; draw a straight line."],["during","During means throughout a period; I slept during the movie."],["handle","Handle means to manage or touch; I can handle this problem."],["shining","Shining means giving out bright light; the sun is shining."],["lovely","Lovely means very beautiful or pleasant; what a lovely day."],["sentence","Sentence is a group of words that expresses a thought; write a sentence."],["looking","Looking means directing your eyes; I am looking at the sky."],["angle","Angle is the space between two lines; measure the angle."],["sharing","Sharing means giving a part to others; we are sharing food."],["slightly","Slightly means a little bit; it is slightly cold."],["broken","Broken means damaged or not working; my phone is broken."],["happen","Happen means to occur; what will happen next?"],["against","Against means touching or opposing; lean the ladder against the wall."],["without","Without means not having; I go without sugar."],["wishing","Wishing means wanting something; I am wishing for a gift."],["forest","Forest is a large area with many trees; we hiked in the forest."],["traveling","Traveling means going on a trip; we are traveling by car."],["circle","Circle is a round shape; draw a circle."],["present","Present can mean a gift or being here; I got a present."],["someone","Someone means an unknown person; someone is at the door."],["instead","Instead means as a substitute; I had tea instead of coffee."],["kitchen","Kitchen is where food is prepared; I cook in the kitchen."],["nothing","Nothing means not anything; I have nothing to say."],["perhaps","Perhaps means maybe; perhaps we will go."],["direction","Direction is a way or path; go in that direction."],["stronger","Stronger means more powerful; I am stronger now."],["waiting","Waiting means staying until something happens; I am waiting for you."],["favourite","Favourite means most liked; my favourite color is blue."],["excited","Excited means very happy and eager; I am excited for the party."],["outside","Outside means not inside; let's play outside."],["journey","Journey is a long trip; our journey took three days."],["forward","Forward means toward the front; step forward."],["myself","Myself is a reflexive pronoun; I made it myself."],["either","Either means one or the other; either answer is correct."],["painting","Painting is the art of using paint; she is painting a picture."],["friendship","Friendship is a bond between friends; our friendship is strong."],["different","Different means not the same; we have different opinions."],["together","Together means with each other; we work together."],["standing","Standing means being on your feet; I am standing."],["quietly","Quietly means with little noise; speak quietly."],["thinking","Thinking means using your mind; I am thinking about it."],["become","Become means to start to be; she wants to become a doctor."],["staying","Staying means remaining in a place; I am staying home."],["searching","Searching means looking for something; I am searching for my keys."],["kindness","Kindness is the quality of being nice; thank you for your kindness."],["started","Started means began; I started a new book."],["number","Number is a symbol for counting; pick a number."],["beyond","Beyond means on the far side; the mountains are beyond the river."],["laughing","Laughing means making sounds of amusement; we are laughing."],["lightly","Lightly means with little weight; touch it lightly."],["important","Important means having great value; this is important."],["question","Question is something you ask; I have a question."],["interesting","Interesting means catching attention; the story is interesting."],["problem","Problem is a difficulty; solve this problem."],["morning","Morning is the early part of the day; I wake up in the morning."],["pretty","Pretty means attractive; she has a pretty smile."],["talking","Talking means speaking; we are talking."],["foot","Foot is the lower part of the body; my foot hurts."],["head","Head is the top part of the body; I have a headache."],["arm","Arm is the limb from shoulder to hand; I broke my arm."],["hand","Hand is the end of the arm; write with your hand."],["leg","Leg is the limb for standing; my leg is tired."],["eye","Eye is the organ for seeing; close your eye."],["ear","Ear is the organ for hearing; my ear hurts."],["nose","Nose is the part for smelling; I have a runny nose."],["mouth","Mouth is the opening for eating and speaking; open your mouth."],["hair","Hair grows on the head; she has long hair."],["finger","Finger is a digit on the hand; I cut my finger."],["toe","Toe is a digit on the foot; I stubbed my toe."],["knee","Knee is the joint in the middle of the leg; I hurt my knee."],["elbow","Elbow is the joint in the arm; I bent my elbow."],["wrist","Wrist is the joint between hand and arm; I wear a watch on my wrist."],["ankle","Ankle is the joint between foot and leg; I twisted my ankle."],["shoulder","Shoulder is the area between neck and arm; I carry a bag on my shoulder."],["chest","Chest is the front part of the body; I have a chest cold."],["back","Back is the rear part of the body; my back hurts."],["neck","Neck connects the head to the body; I wear a scarf around my neck."],["red","Red is a color like blood; the apple is red."],["blue","Blue is a color like the sky; the ocean is blue."],["green","Green is a color like grass; the leaves are green."],["yellow","Yellow is a bright color; the sun is yellow."],["white","White is the color of snow; the paper is white."],["black","Black is a dark color; the night is black."],["orange","Orange is a color and a fruit; I ate an orange."],["purple","Purple is a color like lavender; she wore a purple dress."],["pink","Pink is a light red color; the flowers are pink."],["brown","Brown is a dark color; the bear is brown."],["gray","Gray is a color between black and white; the sky is gray."],["gold","Gold is a yellow precious metal; the ring is gold."],["silver","Silver is a shiny gray metal; I have a silver coin."],["violet","Violet is a purple-blue color; the flower is violet."]
+            ];
+            // 额外扩充的词汇 (已修正拼写错误，stadium 原误写为 stadium, 已修正)
+            const extraRows = [["dimensions","Dimensions are measurements of something in length, width, height, or depth; the blueprint gives the precise dimensions of every room and corridor."],["temporary","Temporary means lasting for only a limited time; they set up a temporary shelter after the storm."],["inferior","Inferior means lower in quality or status; the copy was printed on inferior paper that tore easily."],["robust","Robust means strong and healthy; the robust coffee plant survived the drought without damage."],["ordinary","Ordinary means normal or not special; it looked like an ordinary house from the outside, but inside it was full of art."],["private","Private means for the use of a particular person or group, not public; they held a private meeting on the terrace."],["public","Public means open to or shared by all people; the fountain is located in a public square that everyone can visit."],["apartment","An apartment is a set of rooms for living in, usually on one floor of a building; she rented a small apartment near the city centre."],["balcony","A balcony is a platform projecting from the wall of a building; they had breakfast on the balcony overlooking the canal."],["comfortable","Comfortable means providing physical ease and relaxation; the new sofa is so comfortable that nobody wants to get up."],["electricity","Electricity is a form of energy used for lighting and power; the entire building runs on solar-generated electricity."],["flat","A flat is a British term for an apartment; he bought a two-bedroom flat on the third storey of the modern block."],["brick","Brick is a small rectangular block of fired clay used for building; the traditional cottage was built with red brick and had a tiled roof."],["garage","A garage is a building or part of a building for parking a car; they converted the garage into a home gym and a workshop."],["neighbourhood","A neighbourhood is a district or community within a town or city; the neighbourhood is known for its friendly atmosphere and green parks."],["service","Service means the action of helping or doing work for someone; the hotel offers free room service until midnight."],["shelter","A shelter is a place giving temporary protection from bad weather or danger; they found shelter in a small stone temple during the sudden rain."],["storey","A storey is a level of a building; the library has two storeys, with fiction on the first floor and research on the second."],["concrete","Concrete is a hard building material made from cement, sand, and stones; the pillars of the bridge are made of reinforced concrete."],["traditional","Traditional means following long-established customs or beliefs; for the festival, they wore traditional costumes and performed folk dances."],["blueprint","A blueprint is a detailed plan or drawing of a structure; the architect unrolled the blueprint to show the exact dimensions of the staircase."],["wonder","Wonder as a noun means a feeling of amazement; the Colosseum is an ancient wonder that still fills visitors with awe."],["architect","An architect is a person who designs buildings; the architect drew a diagram to explain the innovative facade of the stadium."],["construct","Construct means to build or put together; a team of engineers will construct a new tunnel under the river next year."],["fountain","A fountain is an ornamental structure that sends water into the air; the marble fountain in the square is a popular meeting point."],["colosseum","The Colosseum is the famous ancient amphitheatre in Rome; the Colosseum once hosted gladiator contests and could hold thousands of spectators."],["stadium","A stadium is a large sports ground with seats for spectators; the new football stadium can seat eighty thousand fans."],["modernise","Modernise means to make something more modern or up-to-date; they plan to modernise the old factory by adding solar panels and smart controls."],["disadvantage","A disadvantage is an unfavourable condition or drawback; the main disadvantage of the apartment is that it has no balcony."],["temple","A temple is a building for religious worship; the ancient temple stands on a hill and is decorated with carved statues."],["terrace","A terrace can be a level paved area next to a building; on warm evenings, the family eats dinner on the terrace overlooking the garden."],["challenge","A challenge is a difficult task or problem that tests someone's ability; designing an earthquake‑proof structure was the engineers' biggest challenge."],["tunnel","A tunnel is an underground passage; the train disappears into a long tunnel that cuts through the mountain."],["structure","A structure is a building or other object constructed from several parts; the steel structure of the roof was assembled in just three days."],["diagram","A diagram is a simplified drawing showing the appearance or workings of something; the textbook includes a diagram that labels all the parts of a concrete beam."],["community","A community is a group of people living in the same place or having a particular characteristic in common; the local community came together to paint the neighbourhood shelter."],["facade","A facade is the principal front of a building; the Gothic facade of the cathedral is covered with intricate stone carvings."],["design","Design means the plan or drawing produced to show the look and function of something before it is built; her design for the new playground includes a fountain and shaded seating."],["renovate","Renovate means to restore or repair something to a good state; the owners will renovate the old cottage and keep its traditional brick facade."],["statue","A statue is a carved or cast figure of a person or animal; a bronze statue of a pioneer stands in the town square."]
+            ];
+            const fullStatic = [...builtinWordsWithSentences, ...extraRows];
+            // 全局映射 (单词小写 -> 例句)
+            let sentenceMap = new Map();
+            // masterWordBank 存储去重单词(原始大小)
+            let masterWordBank = [];
+            function rebuildFromStatic() {
+                sentenceMap.clear();
+                const unique = new Map();
+                for (let [word, sent] of fullStatic) {
+                    let lower = word.trim().toLowerCase();
+                    if (!unique.has(lower)) {
+                        unique.set(lower, word.trim());
+                        sentenceMap.set(lower, sent);
+                    }
+                }
+                masterWordBank = Array.from(unique.values());
+            }
+            rebuildFromStatic();
+            
+            // 分组函数：每 80 个单词一组
+            function buildGroups(words) { const groups = []; for (let i = 0; i < words.length; i += 80) groups.push(words.slice(i, i + 80)); return groups; }
+            let currentGroups = buildGroups(masterWordBank);
+            let selectedGroupIndices = new Set();
+            // 新增：是否选中“最后40个单词”分组
+            let last40Selected = false;
+            let currentWordBank = [...masterWordBank];
+            let currentBankName = "📚 完整词库 (内置)";
+            
+            // 听写相关变量
+            let sessionActive = false;
+            let currentSessionWords = [], currentIndex = 0, hearts = 10, maxHearts = 10, incorrectAttemptsForCurrent = 0;
+            let sessionStats = [], currentEntriesLog = [], answerRevealed = false;
+            let speechSynth = window.speechSynthesis, voices = [], currentSpeed = 0.7, usedLearnForCurrent = false;
+            
+            // DOM元素获取
+            const settingsDiv = document.getElementById('settingsPanel'), dictationDiv = document.getElementById('dictationArea'), finalDiv = document.getElementById('finalPanel');
+            const startBtn = document.getElementById('startBtn'), restartBtn = document.getElementById('restartBtn'), exportSummaryBtn = document.getElementById('exportSummaryBtn');
+            const topSettingsBtn = document.getElementById('topSettingsBtn'), fileInput = document.getElementById('fileUpload'), loadFileBtn = document.getElementById('loadFileBtn');
+            const updateDefaultBtn = document.getElementById('updateDefaultBtn'), addWordsBtn = document.getElementById('addWordsBtn'), addWordsModal = document.getElementById('addWordsModal');
+            const newWordsTextarea = document.getElementById('newWordsTextarea'), confirmAddWordsBtn = document.getElementById('confirmAddWordsBtn'), cancelAddWordsBtn = document.getElementById('cancelAddWordsBtn');
+            const currentBankLabel = document.getElementById('currentBankLabel'), loadedWordCountSpan = document.getElementById('loadedWordCount');
+            const wordCountInput = document.getElementById('wordCount'), maxWordsCheckbox = document.getElementById('maxWordsCheckbox'), selectMode = document.getElementById('selectMode');
+            const heartCountInput = document.getElementById('heartCount'), wordCounter = document.getElementById('wordCounter'), heartsDisplay = document.getElementById('heartsDisplay');
+            const spellInput = document.getElementById('spellInput'), checkBtn = document.getElementById('checkBtn'), feedbackDiv = document.getElementById('feedback');
+            const voiceUkBtn = document.getElementById('voiceUkBtn'), voiceUsBtn = document.getElementById('voiceUsBtn'), voiceUkMaleBtn = document.getElementById('voiceUkMaleBtn');
+            const speedRange = document.getElementById('speedRange'), speedValue = document.getElementById('speedValue'), finalMessage = document.getElementById('finalMessage');
+            const statsContainer = document.getElementById('statsContainer'), finalImageContainer = document.getElementById('finalImageContainer');
+            const showAnswerBtn = document.getElementById('showAnswerBtn'), skipAfterAnswerBtn = document.getElementById('skipAfterAnswerBtn'), answerDisplay = document.getElementById('answerDisplay');
+            const showWordsBtn = document.getElementById('showWordsBtn'), wordModal = document.getElementById('wordModal'), wordListContainer = document.getElementById('wordListContainer');
+            const closeModalBtn = document.getElementById('closeModalBtn'), learnBtn = document.getElementById('learnBtn'), skipAfterLearnBtn = document.getElementById('skipAfterLearnBtn');
+            const groupButtonsContainer = document.getElementById('groupButtonsContainer');
+            const showSelectedGroupsWordsBtn = document.getElementById('showSelectedGroupsWordsBtn');
+            const sentenceUkBtn = document.getElementById('sentenceUkBtn'), sentenceUsBtn = document.getElementById('SentenceUsBtn');
+            
+            // ── 通用 Excel/CSV 解析 → { words, sentenceMap } ──
+            function parseExcelBufferToWordBank(arrayBuffer, fileName) {
+                const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: "" });
+                if (!rows.length) throw new Error('Empty file');
+                const newWordMap = new Map();
+                for (let row of rows) {
+                    if (!row || row.length < 1) continue;
+                    let wordRaw = row[0];
+                    if (!wordRaw || typeof wordRaw !== 'string') continue;
+                    let word = wordRaw.trim();
+                    if (word === "") continue;
+                    let sentence = (row.length > 1 && row[1]) ? String(row[1]).trim() : "";
+                    let lower = word.toLowerCase();
+                    if (!newWordMap.has(lower)) {
+                        newWordMap.set(lower, { word: word, sentence: sentence });
+                    }
+                }
+                if (newWordMap.size === 0) throw new Error('No valid words found');
+                const wordsList = [];
+                const sentenceMapLocal = new Map();
+                for (let [lower, obj] of newWordMap.entries()) {
+                    wordsList.push(obj.word);
+                    if (obj.sentence) sentenceMapLocal.set(lower, obj.sentence);
+                }
+                return { words: wordsList, sentenceMap: sentenceMapLocal };
+            }
+
+            // 用解析结果替换当前词库
+            function applyWordBank(words, sentMap) {
+                masterWordBank = [...words];
+                sentenceMap.clear();
+                for (let [k, v] of sentMap.entries()) sentenceMap.set(k, v);
+                currentGroups = buildGroups(masterWordBank);
+                selectedGroupIndices.clear();
+                last40Selected = false;
+                renderGroupSelector();
+                updateWordBankFromGroups();
+            }
+
+            // 自动加载同目录下的 word.xlsx 或 word.csv
+            async function autoLoadWordFile() {
+                const filesToTry = ['word.xlsx', 'word.csv'];
+                for (let fileName of filesToTry) {
+                    try {
+                        const response = await fetch(fileName);
+                        if (!response.ok) continue;
+                        const arrayBuffer = await response.arrayBuffer();
+                        const { words, sentenceMap: sm } = parseExcelBufferToWordBank(arrayBuffer, fileName);
+                        if (words.length > 0) {
+                            applyWordBank(words, sm);
+                            currentBankName = `📄 自动加载: ${fileName}`;
+                            updateUIWordCount();
+                            return true;
+                        }
+                    } catch (e) {
+                        continue;
+                    }
+                }
+                return false;
+            }
+
+            // 初始化词库：按优先级 1) 同目录文件 2) localStorage 3) 内置默认
+            async function initWordBank() {
+                const autoLoaded = await autoLoadWordFile();
+                if (autoLoaded) return;
+
+                const storedWords = localStorage.getItem('unicorn_master_bank');
+                const storedSentences = localStorage.getItem('unicorn_sentence_map');
+                if (storedWords && storedSentences) {
+                    try {
+                        const wordsArr = JSON.parse(storedWords);
+                        const sentEntries = JSON.parse(storedSentences);
+                        applyWordBank(wordsArr, new Map(sentEntries));
+                        const storedGroups = localStorage.getItem('unicorn_selected_groups');
+                        if (storedGroups) selectedGroupIndices = new Set(JSON.parse(storedGroups));
+                        else selectedGroupIndices.clear();
+                        const storedLast40 = localStorage.getItem('unicorn_last40_selected');
+                        if (storedLast40) last40Selected = (storedLast40 === 'true');
+                        currentBankName = '💾 本地默认词库';
+                        renderGroupSelector();
+                        updateWordBankFromGroups();
+                        updateUIWordCount();
+                        return;
+                    } catch (e) {}
+                }
+
+                // 回退到内置词库
+                rebuildFromStatic();
+                currentGroups = buildGroups(masterWordBank);
+                selectedGroupIndices.clear();
+                last40Selected = false;
+                renderGroupSelector();
+                updateWordBankFromGroups();
+                updateUIWordCount();
+            }
+
+            function playSentence(voiceType) {
+                if (!sessionActive || currentSessionWords.length === 0 || currentIndex >= currentSessionWords.length) {
+                    feedbackDiv.innerHTML = '✨ 请先开始听写 ✨';
+                    return;
+                }
+                const word = currentSessionWords[currentIndex];
+                const sentence = sentenceMap.get(word.toLowerCase());
+                if (!sentence) {
+                    feedbackDiv.innerHTML = `📢 没有例句: "${word}" , 试试朗读单词吧~`;
+                    speak(word, voiceType);
+                } else {
+                    speak(sentence, voiceType);
+                }
+            }
+            
+            // 更新 currentWordBank 时考虑最后40个单词的选择
+            function updateWordBankFromGroups() {
+                let selectedWords = [];
+                if (selectedGroupIndices.size === 0 && !last40Selected) {
+                    currentGroups.forEach(g => selectedWords.push(...g));
+                } else {
+                    for (let idx of selectedGroupIndices) {
+                        if (currentGroups[idx]) selectedWords.push(...currentGroups[idx]);
+                    }
+                }
+                if (last40Selected) {
+                    const last40 = masterWordBank.slice(-40);
+                    selectedWords.push(...last40);
+                }
+                currentWordBank = [...new Map(selectedWords.map(w => [w.toLowerCase(), w])).values()];
+                if (currentWordBank.length === 0) currentWordBank = ['unicorn'];
+                const groupDesc = selectedGroupIndices.size === 0 && !last40Selected ? 'all' :
+                    (selectedGroupIndices.size === 0 && last40Selected ? 'last40' :
+                    Array.from(selectedGroupIndices).map(i => `组${i+1}`).join(',') + (last40Selected ? '+last40' : ''));
+                currentBankName = `📚 ${groupDesc}`;
+                updateUIWordCount();
+            }
+
+            // 渲染分组选择器，增加“最后40个单词”按钮
+            function renderGroupSelector() {
+                groupButtonsContainer.innerHTML = '';
+                currentGroups.forEach((group, idx) => {
+                    const btn = document.createElement('div');
+                    btn.className = 'group-chip' + (selectedGroupIndices.has(idx) ? ' selected' : '');
+                    btn.innerHTML = `📖 组 ${idx+1} <small>${group.length}词</small>`;
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (selectedGroupIndices.has(idx)) selectedGroupIndices.delete(idx);
+                        else selectedGroupIndices.add(idx);
+                        renderGroupSelector();
+                        updateWordBankFromGroups();
+                    });
+                    groupButtonsContainer.appendChild(btn);
+                });
+                // 最后40个单词按钮
+                const last40Btn = document.createElement('div');
+                last40Btn.className = 'group-chip' + (last40Selected ? ' selected' : '');
+                const last40Count = Math.min(40, masterWordBank.length);
+                last40Btn.innerHTML = `📋 最后40个单词 <small>${last40Count}词</small>`;
+                last40Btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    last40Selected = !last40Selected;
+                    renderGroupSelector();
+                    updateWordBankFromGroups();
+                });
+                groupButtonsContainer.appendChild(last40Btn);
+                
+                const selectAllBtn = document.createElement('div');
+                selectAllBtn.className = 'group-chip';
+                selectAllBtn.innerHTML = `🌟 全选所有组 (${currentGroups.reduce((a,g)=>a+g.length,0)}词)`;
+                selectAllBtn.addEventListener('click', () => {
+                    selectedGroupIndices.clear();
+                    last40Selected = false;
+                    renderGroupSelector();
+                    updateWordBankFromGroups();
+                });
+                groupButtonsContainer.appendChild(selectAllBtn);
+            }
+            function updateUIWordCount() { loadedWordCountSpan.innerText = currentWordBank.length; currentBankLabel.innerText = currentBankName; }
+            function showAllWordsModal() { wordListContainer.innerHTML = ''; currentWordBank.forEach(word => { const chip = document.createElement('span'); chip.className = 'word-chip'; chip.textContent = word; wordListContainer.appendChild(chip); }); wordModal.classList.remove('hidden'); }
+            function showTestWordsModal() { wordListContainer.innerHTML = ''; currentWordBank.forEach(word => { const chip = document.createElement('span'); chip.className = 'word-chip'; chip.textContent = word; wordListContainer.appendChild(chip); }); wordModal.classList.remove('hidden'); }
+            closeModalBtn.addEventListener('click', () => wordModal.classList.add('hidden'));
+            showWordsBtn.addEventListener('click', showAllWordsModal);
+            showSelectedGroupsWordsBtn.addEventListener('click', showTestWordsModal);
+            function renderHearts() { let h = ''; for (let i=0; i<maxHearts; i++) h += (i < hearts) ? '❤️' : '🩶'; heartsDisplay.innerHTML = h; }
+            function loadVoices() { voices = speechSynthesis.getVoices(); }
+            if (speechSynth) { speechSynthesis.addEventListener('voiceschanged', loadVoices); loadVoices(); }
+            function speak(text, voiceType = 'UK') { if (!speechSynth) return; speechSynth.cancel(); const utterance = new SpeechSynthesisUtterance(text); utterance.rate = currentSpeed; utterance.pitch = 1.2; let selected = null; if (voices.length) { if (voiceType === 'UK') selected = voices.find(v => v.lang.includes('en-GB') && v.name.includes('Female')); else if (voiceType === 'US') selected = voices.find(v => v.lang.includes('en-US') && v.name.includes('Female')); else if (voiceType === 'UKMALE') selected = voices.find(v => v.lang.includes('en-GB') && v.name.includes('Male')); if (!selected) selected = voices.find(v => v.lang.includes('en')); } if (selected) utterance.voice = selected; speechSynth.speak(utterance); }
+            function playCurrentWord(voice = 'UK') { if (currentSessionWords.length && currentIndex < currentSessionWords.length) speak(currentSessionWords[currentIndex], voice); }
+            function updateProgress() { if (currentSessionWords.length) wordCounter.innerText = `✨ word ${currentIndex+1} / ${currentSessionWords.length}`; }
+            function loadNewWord() { if (!sessionActive) return; if (currentIndex >= currentSessionWords.length) { finishSession(true); return; } incorrectAttemptsForCurrent = 0; currentEntriesLog = []; answerRevealed = false; usedLearnForCurrent = false; learnBtn.disabled = false; answerDisplay.classList.add('hidden'); showAnswerBtn.classList.add('hidden'); skipAfterAnswerBtn.classList.add('hidden'); skipAfterLearnBtn.classList.add('hidden'); spellInput.value = ''; feedbackDiv.innerHTML = '✨ type the word...'; updateProgress(); renderHearts(); playCurrentWord('UK'); }
+            function calculateAccuracyPercentage() { const validItems = sessionStats.filter(stat => !stat.result.includes('learned') && stat.result !== 'skipped (answer shown)' && !stat.result.includes('skip')); const totalValid = validItems.length; const correctValid = validItems.filter(stat => stat.result === 'correct').length; return totalValid === 0 ? 0 : Math.round((correctValid / totalValid) * 100); }
+            function exportWithAccuracy(manual = true) { if (sessionStats.length === 0 && manual) { alert('No records to export'); return; } if (sessionStats.length === 0 && !manual) return; const accuracy = calculateAccuracyPercentage(); const wb = XLSX.utils.book_new(); const summaryRows = [['Spelling Accuracy Report'],['Overall Accuracy (%)', accuracy + '%'],['Total Attempted Words', sessionStats.filter(s => !s.result.includes('learned') && !s.result.includes('skip')).length],['Correct Words', sessionStats.filter(s => s.result === 'correct').length],['Generated Time', new Date().toLocaleString()],[],['Detailed Word Log']]; const detailsRows = [['Word', 'Attempts', 'Entries', 'Result']]; sessionStats.forEach(s => detailsRows.push([s.word, s.attempts, s.entries.join('; '), s.result])); const finalSheetData = [...summaryRows, ...detailsRows]; const ws = XLSX.utils.aoa_to_sheet(finalSheetData); ws['!cols'] = [{wch:20},{wch:12},{wch:35},{wch:25}]; XLSX.utils.book_append_sheet(wb, ws, 'Dictation Summary'); const now = new Date(); const fileName = manual ? `dictation_manual_${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}-${now.getMinutes().toString().padStart(2,'0')}.xlsx` : `dictation_auto_${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}-${now.getMinutes().toString().padStart(2,'0')}-${now.getSeconds().toString().padStart(2,'0')}.xlsx`; XLSX.writeFile(wb, fileName); }
+            function finishSession(success) { sessionActive = false; dictationDiv.classList.add('hidden'); finalDiv.classList.remove('hidden'); const percentage = calculateAccuracyPercentage(); const correctValid = sessionStats.filter(stat => stat.result === 'correct').length; const totalValid = sessionStats.filter(stat => !stat.result.includes('learned') && !stat.result.includes('skip')).length; let percentageHtml = `<div class="percentage-badge">✨ Your Spelling Accuracy ✨<br> 🎯 ${percentage}% (${correctValid}/${totalValid} correct) </div>`; if (success && currentIndex >= currentSessionWords.length) { finalMessage.innerHTML = '<h2>🎉✨ CONGRATULATIONS! ✨🎉</h2><p style="font-size:1.8rem;">you did it, superstar!</p>'; finalImageContainer.innerHTML = '<img src="happy.png" class="final-image" alt="happy unicorn" onerror="this.style.display=\'none\'">'; } else { finalMessage.innerHTML = '<h2>🌸 try again, sweetie! 🌸</h2><p style="font-size:1.6rem;">your unicorn will wait ✨</p>'; finalImageContainer.innerHTML = '<img src="sad.png" class="final-image" alt="sad unicorn" onerror="this.style.display=\'none\'">'; } let html = percentageHtml + '<table style="width:100%; border-collapse: collapse;"> <thead><tr><th style="padding:8px; text-align:left;">Word</th><th style="padding:8px; text-align:left;">Attempts</th><th style="padding:8px; text-align:left;">Entries</th><th style="padding:8px; text-align:left;">Result</th></tr></thead><tbody>'; sessionStats.forEach(s => { html += `<tr><td style="padding:6px; border-bottom:1px dashed #b35d86;">${s.word}</td><td style="padding:6px;">${s.attempts}</td><td style="padding:6px;">${s.entries.join(', ')}</td><td style="padding:6px;">${s.result}</td></tr>`; }); html += '</tbody></table>'; statsContainer.innerHTML = html; exportWithAccuracy(false); }
+            function checkSpelling() { if (!sessionActive) return; let userAnswer = spellInput.value.trim().toLowerCase(); if (userAnswer === '') { feedbackDiv.innerHTML = '🌸 please write something!'; return; } let correct = currentSessionWords[currentIndex].toLowerCase(); currentEntriesLog.push(userAnswer); if (userAnswer === correct) { feedbackDiv.innerHTML = '✅✨ perfect! ✨'; sessionStats.push({ word: correct, attempts: incorrectAttemptsForCurrent + 1, entries: [...currentEntriesLog], result: usedLearnForCurrent ? 'learned + correct' : 'correct' }); currentIndex++; if (currentIndex < currentSessionWords.length) { loadNewWord(); } else { finishSession(true); } } else { incorrectAttemptsForCurrent++; hearts--; renderHearts(); spellInput.value = ''; feedbackDiv.innerHTML = `💔 oops ... try again! (${incorrectAttemptsForCurrent}/3)`; if (incorrectAttemptsForCurrent >= 3 && !answerRevealed && !usedLearnForCurrent) { showAnswerBtn.classList.remove('hidden'); } if (hearts <= 0) { sessionStats.push({ word: currentSessionWords[currentIndex], attempts: incorrectAttemptsForCurrent, entries: [...currentEntriesLog], result: usedLearnForCurrent ? 'learned + out of hearts' : 'out of hearts' }); finishSession(false); return; } } }
+            function showAnswerFunc() { if (!sessionActive) return; let correct = currentSessionWords[currentIndex]; answerDisplay.textContent = `✨ ${correct} ✨`; answerDisplay.classList.remove('hidden'); answerRevealed = true; showAnswerBtn.classList.add('hidden'); skipAfterAnswerBtn.classList.remove('hidden'); }
+            function skipAfterAnswer() { if (!sessionActive) return; let correct = currentSessionWords[currentIndex]; sessionStats.push({ word: correct, attempts: incorrectAttemptsForCurrent, entries: [...currentEntriesLog], result: 'skipped (answer shown)' }); currentIndex++; if (currentIndex < currentSessionWords.length) { loadNewWord(); } else { finishSession(true); } }
+            function learnWord() { if (!sessionActive || usedLearnForCurrent) return; let correct = currentSessionWords[currentIndex]; answerDisplay.textContent = `✨ ${correct} ✨`; answerDisplay.classList.remove('hidden'); usedLearnForCurrent = true; learnBtn.disabled = true; showAnswerBtn.classList.add('hidden'); skipAfterLearnBtn.classList.remove('hidden'); feedbackDiv.innerHTML = '📘 learned! now try to type it, or click Skip to move on.'; }
+            function skipAfterLearn() { if (!sessionActive) return; let correct = currentSessionWords[currentIndex]; sessionStats.push({ word: correct, attempts: incorrectAttemptsForCurrent, entries: [...currentEntriesLog], result: 'learned + skipped' }); currentIndex++; if (currentIndex < currentSessionWords.length) { loadNewWord(); } else { finishSession(true); } }
+            function getSessionWordCount() { if (maxWordsCheckbox.checked) return currentWordBank.length; let n = parseInt(wordCountInput.value) || 40; return Math.min(200, Math.max(1, n)); }
+            function startSession() { if (currentWordBank.length === 0) { alert('请先选择至少一个单词组'); return; } let limit = getSessionWordCount(); maxHearts = Math.min(20, Math.max(1, parseInt(heartCountInput.value) || 10)); hearts = maxHearts; let mode = selectMode.value; let pool = currentWordBank; if (mode === 'sequential') { currentSessionWords = pool.slice(0, Math.min(limit, pool.length)); } else { let shuffled = [...pool]; for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; } currentSessionWords = shuffled.slice(0, Math.min(limit, pool.length)); } if (currentSessionWords.length === 0) currentSessionWords = ['unicorn']; currentIndex = 0; sessionStats = []; sessionActive = true; settingsDiv.classList.add('hidden'); dictationDiv.classList.remove('hidden'); finalDiv.classList.add('hidden'); answerDisplay.classList.add('hidden'); showAnswerBtn.classList.add('hidden'); skipAfterAnswerBtn.classList.add('hidden'); skipAfterLearnBtn.classList.add('hidden'); learnBtn.disabled = false; renderHearts(); loadNewWord(); }
+            function goToSettings() { if (sessionActive && speechSynth) speechSynth.cancel(); sessionActive = false; settingsDiv.classList.remove('hidden'); dictationDiv.classList.add('hidden'); finalDiv.classList.add('hidden'); }
+            function restartToDefault() { if (speechSynth) speechSynth.cancel(); initWordBank().then(() => goToSettings()); }
+            
+            // 增强上传: 读取列A+列B 更新词库+例句
+            async function loadUploadedFile() {
+                const file = fileInput.files[0];
+                if (!file) { alert('Please select an Excel file'); return; }
+                try {
+                    const buffer = await file.arrayBuffer();
+                    const { words, sentenceMap: sm } = parseExcelBufferToWordBank(buffer, file.name);
+                    applyWordBank(words, sm);
+                    currentBankName = `📤 上传: ${file.name}`;
+                    updateUIWordCount();
+                    goToSettings();
+                    alert(`✅ 已导入 ${words.length} 个单词及对应例句！`);
+                } catch (err) { alert('读取失败: ' + err.message); }
+            }
+            
+            function setAsDefaultBank() {
+                if (confirm('⭐ 将当前词库 (含例句) 保存为默认？')) {
+                    const wordsArray = masterWordBank;
+                    const sentenceEntries = Array.from(sentenceMap.entries());
+                    localStorage.setItem('unicorn_master_bank', JSON.stringify(wordsArray));
+                    localStorage.setItem('unicorn_sentence_map', JSON.stringify(sentenceEntries));
+                    localStorage.setItem('unicorn_selected_groups', JSON.stringify(Array.from(selectedGroupIndices)));
+                    localStorage.setItem('unicorn_last40_selected', JSON.stringify(last40Selected));
+                    alert('✅ 默认库已保存！');
+                }
+            }
+            
+            function openAddWordsModal() { newWordsTextarea.value = ''; addWordsModal.classList.remove('hidden'); }
+            function confirmAddWords() {
+                const rawText = newWordsTextarea.value;
+                if (!rawText.trim()) return;
+                const lines = rawText.split(/\r?\n/);
+                let added = 0;
+                for (let line of lines) {
+                    let word = line.trim();
+                    if (word === "") continue;
+                    let lower = word.toLowerCase();
+                    if (!masterWordBank.some(w => w.toLowerCase() === lower)) {
+                        masterWordBank.push(word);
+                        if (!sentenceMap.has(lower)) sentenceMap.set(lower, "");
+                        added++;
+                    }
+                }
+                if (added > 0) {
+                    currentGroups = buildGroups(masterWordBank);
+                    selectedGroupIndices.clear();
+                    last40Selected = false;
+                    renderGroupSelector();
+                    updateWordBankFromGroups();
+                    alert(`✨ 添加了 ${added} 个新单词。`);
+                } else { alert('没有新单词或重复'); }
+                addWordsModal.classList.add('hidden');
+            }
+            
+            // 保留 loadStoredDefault 以便兼容，但不再主动调用
+            function loadStoredDefault() {
+                const storedWords = localStorage.getItem('unicorn_master_bank');
+                const storedSentences = localStorage.getItem('unicorn_sentence_map');
+                if (storedWords && storedSentences) {
+                    try {
+                        const wordsArr = JSON.parse(storedWords);
+                        const sentEntries = JSON.parse(storedSentences);
+                        masterWordBank = wordsArr;
+                        sentenceMap.clear();
+                        for (let [k,v] of sentEntries) sentenceMap.set(k, v);
+                        currentGroups = buildGroups(masterWordBank);
+                        const storedGroups = localStorage.getItem('unicorn_selected_groups');
+                        if (storedGroups) selectedGroupIndices = new Set(JSON.parse(storedGroups));
+                        else selectedGroupIndices.clear();
+                        const storedLast40 = localStorage.getItem('unicorn_last40_selected');
+                        if (storedLast40) last40Selected = (storedLast40 === 'true');
+                        renderGroupSelector();
+                        updateWordBankFromGroups();
+                        return;
+                    } catch(e) {}
+                }
+                rebuildFromStatic();
+                currentGroups = buildGroups(masterWordBank);
+                selectedGroupIndices.clear();
+                last40Selected = false;
+                renderGroupSelector();
+                updateWordBankFromGroups();
+            }
+            
+            // 事件绑定
+            exportSummaryBtn.addEventListener('click', () => exportWithAccuracy(true));
+            loadFileBtn.addEventListener('click', loadUploadedFile);
+            updateDefaultBtn.addEventListener('click', setAsDefaultBank);
+            addWordsBtn.addEventListener('click', openAddWordsModal);
+            confirmAddWordsBtn.addEventListener('click', confirmAddWords);
+            cancelAddWordsBtn.addEventListener('click', () => addWordsModal.classList.add('hidden'));
+            startBtn.addEventListener('click', startSession);
+            restartBtn.addEventListener('click', restartToDefault);
+            topSettingsBtn.addEventListener('click', goToSettings);
+            checkBtn.addEventListener('click', checkSpelling);
+            spellInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkSpelling(); });
+            showAnswerBtn.addEventListener('click', showAnswerFunc);
+            skipAfterAnswerBtn.addEventListener('click', skipAfterAnswer);
+            skipAfterLearnBtn.addEventListener('click', skipAfterLearn);
+            voiceUkBtn.addEventListener('click', () => playCurrentWord('UK'));
+            voiceUsBtn.addEventListener('click', () => playCurrentWord('US'));
+            voiceUkMaleBtn.addEventListener('click', () => playCurrentWord('UKMALE'));
+            learnBtn.addEventListener('click', learnWord);
+            speedRange.addEventListener('input', (e) => { currentSpeed = parseFloat(e.target.value); speedValue.innerText = currentSpeed.toFixed(1) + 'x'; });
+            maxWordsCheckbox.addEventListener('change', (e) => { wordCountInput.disabled = e.target.checked; wordCountInput.style.opacity = e.target.checked ? '0.6' : '1'; });
+            wordCountInput.disabled = maxWordsCheckbox.checked;
+            if (sentenceUkBtn) sentenceUkBtn.addEventListener('click', () => playSentence('UK'));
+            if (sentenceUsBtn) sentenceUsBtn.addEventListener('click', () => playSentence('US'));
+            // 页面启动，按优先级初始化词库
+            initWordBank();
+        })();
+    </script>
+</body>
+</html>
